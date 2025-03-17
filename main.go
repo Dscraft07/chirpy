@@ -6,21 +6,17 @@ import (
 )
 
 func main() {
-	// Vytvoříme nový ServeMux, který bude sloužit jako multiplexer pro HTTP požadavky.
-	mux := http.NewServeMux()
+	const filepathRoot = "."
+	const port = "8080"
 
-	// Vytvoříme nový http.Server a nastavíme:
-	// - Addr na ":8080", což znamená, že server bude naslouchat na všech IP adresách na portu 8080.
-	// - Handler na náš ServeMux.
-	server := &http.Server{
-		Addr:    ":8080",
+	mux := http.NewServeMux()
+	mux.Handle("/", http.FileServer(http.Dir(filepathRoot)))
+
+	srv := &http.Server{
+		Addr:    ":" + port,
 		Handler: mux,
 	}
 
-	log.Println("Server starting on :8080...")
-	// Spustíme server. Protože v muxu nejsou definovány žádné cesty,
-	// server vždy vrátí výchozí odpověď 404 Not Found.
-	if err := server.ListenAndServe(); err != nil {
-		log.Fatal(err)
-	}
+	log.Printf("Serving files from %s on port: %s\n", filepathRoot, port)
+	log.Fatal(srv.ListenAndServe())
 }
